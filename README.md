@@ -1,4 +1,4 @@
-# Chad's Calorie Confessional - Local Home Network Edition
+# Helix Protocol - Local Home Network Edition
 
 ## 📋 Overview
 
