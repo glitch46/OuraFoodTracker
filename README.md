@@ -1,4 +1,4 @@
-# Helix Protocol - Local Home Network Edition
+# Helix Protocol
 
 ## 📋 Overview
 
