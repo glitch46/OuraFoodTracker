@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Tracker - Design Mockup V1 (Linear Style)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d0d0d;
+            --bg-secondary: #111113;
+            --bg-tertiary: #1a1a1d;
+            --bg-elevated: #1f1f23;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-tertiary: #71717a;
+            --accent-calories: #f97316;
+            --accent-protein: #3b82f6;
+            --accent-carbs: #22c55e;
+            --accent-fat: #eab308;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #fafafa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f4f4f5;
+            --bg-elevated: #e4e4e7;
+            --text-primary: #18181b;
+            --text-secondary: #52525b;
+            --text-tertiary: #71717a;
+            --border-subtle: rgba(0, 0, 0, 0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 32px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 4px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle-slider {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-calories);
+            border-radius: 50%;
+            transform: translateX(0);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [data-theme="light"] .theme-toggle-slider {
+            transform: translateX(28px);
+            background: #f59e0b;
+        }
+
+        .theme-toggle-slider svg {
+            width: 14px;
+            height: 14px;
+            color: white;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        /* Animated Macro Cards */
+        .macro-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .macro-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .macro-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        [data-theme="light"] .macro-card:hover {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .macro-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-color);
+            transform: scaleX(0);
+            transform-origin: left;
+            animation: slideIn 0.8s ease forwards;
+        }
+
+        @keyframes slideIn {
+            to { transform: scaleX(1); }
+        }
+
+        .macro-card.calories { --accent-color: var(--accent-calories); }
+        .macro-card.protein { --accent-color: var(--accent-protein); }
+        .macro-card.carbs { --accent-color: var(--accent-carbs); }
+        .macro-card.fat { --accent-color: var(--accent-fat); }
+
+        /* Animated Ring Graph */
+        .ring-container {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        .ring-svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .ring-bg {
+            fill: none;
+            stroke: var(--bg-tertiary);
+            stroke-width: 8;
+        }
+
+        .ring-fill {
+            fill: none;
+            stroke: var(--accent-color);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 339.292;
+            stroke-dashoffset: 339.292;
+            animation: fillRing 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            filter: drop-shadow(0 0 10px var(--accent-color));
+        }
+
+        @keyframes fillRing {
+            to { stroke-dashoffset: var(--target-offset, 84.8); }
+        }
+
+        .ring-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ring-value {
+            font-size: 28px;
+            font-weight: 700;
+            animation: countUp 1.5s ease forwards;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .ring-target {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .macro-label {
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* Pulse Animation on Hover */
+        .macro-card:hover .ring-fill {
+            animation: pulse 1.5s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { filter: drop-shadow(0 0 10px var(--accent-color)); }
+            50% { filter: drop-shadow(0 0 20px var(--accent-color)); }
+        }
+
+        /* Meal Sections with Stagger */
+        .meals-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .meal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.6s ease forwards;
+        }
+
+        .meal-card:nth-child(1) { animation-delay: 0.1s; }
+        .meal-card:nth-child(2) { animation-delay: 0.2s; }
+        .meal-card:nth-child(3) { animation-delay: 0.3s; }
+        .meal-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .meal-header {
+            padding: 16px 20px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .meal-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-btn:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            transform: rotate(90deg);
+        }
+
+        .meal-content {
+            padding: 20px;
+            min-height: 100px;
+        }
+
+        /* Progress Bars with Animation */
+        .progress-demo {
+            margin-top: 40px;
+            padding: 30px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .progress-item {
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            width: 0;
+            animation: fillBar 1.5s ease forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes fillBar {
+            to { width: var(--progress-width); }
+        }
+
+        @keyframes shimmer {
+            to { left: 100%; }
+        }
+
+        .progress-fill.calories { background: var(--accent-calories); --progress-width: 75%; }
+        .progress-fill.protein { background: var(--accent-protein); --progress-width: 90%; }
+        .progress-fill.carbs { background: var(--accent-carbs); --progress-width: 60%; }
+        .progress-fill.fat { background: var(--accent-fat); --progress-width: 45%; }
+
+        /* Hydration Water Drops */
+        .hydration-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--border-subtle);
+            text-align: center;
+        }
+
+        .water-drops {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .water-drop {
+            width: 40px;
+            height: 50px;
+            background: var(--bg-tertiary);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid var(--border-subtle);
+        }
+
+        .water-drop:hover {
+            transform: scale(1.1);
+        }
+
+        .water-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            background: linear-gradient(180deg, #22d3ee, #06b6d4);
+            animation: fillWater 1s ease forwards;
+        }
+
+        @keyframes fillWater {
+            to { height: 100%; }
+        }
+
+        .water-drop:nth-child(1) .water-fill { animation-delay: 0.1s; }
+        .water-drop:nth-child(2) .water-fill { animation-delay: 0.2s; }
+        .water-drop:nth-child(3) .water-fill { animation-delay: 0.3s; }
+        .water-drop:nth-child(4) .water-fill { animation-delay: 0.4s; }
+        .water-drop:nth-child(5) .water-fill { animation-delay: 0.5s; }
+        .water-drop.filled .water-fill { height: 100%; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .macro-grid { grid-template-columns: repeat(2, 1fr); }
+            .meals-container { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 640px) {
+            .macro-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <div class="theme-toggle-slider">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"/>
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+        </div>
+    </button>
+
+    <div class="container">
+        <h1>Nutrition Tracker</h1>
+        <p class="subtitle">Linear-style with animated ring graphs</p>
+
+        <!-- Animated Macro Cards with Ring Graphs -->
+        <div class="macro-grid">
+            <div class="macro-card calories">
+                <div class="ring-container">
+                    <svg class="ring-svg" viewBox="0 0 120 120">
+                        <circle class="ring-bg" cx="60" cy="60" r="54"/>
+                        <circle class="ring-fill" cx="60" cy="60" r="54" style="--target-offset: 84.8;"/>
+                    </svg>
+                    <div class="ring-content">
+                        <div class="ring-value">1,200</div>
+                        <div class="ring-target">/ 1,600</div>
+                    </div>
+                </div>
+                <div class="macro-label">Calories</div>
+            </div>
+
+            <div class="macro-card protein">
+                <div class="ring-container">
+                    <svg class="ring-svg" viewBox="0 0 120 120">
+                        <circle class="ring-bg" cx="60" cy="60" r="54"/>
+                        <circle class="ring-fill" cx="60" cy="60" r="54" style="--target-offset: 33.9;"/>
+                    </svg>
+                    <div class="ring-content">
+                        <div class="ring-value">135g</div>
+                        <div class="ring-target">/ 150g</div>
+                    </div>
+                </div>
+                <div class="macro-label">Protein</div>
+            </div>
+
+            <div class="macro-card carbs">
+                <div class="ring-container">
+                    <svg class="ring-svg" viewBox="0 0 120 120">
+                        <circle class="ring-bg" cx="60" cy="60" r="54"/>
+                        <circle class="ring-fill" cx="60" cy="60" r="54" style="--target-offset: 135.7;"/>
+                    </svg>
+                    <div class="ring-content">
+                        <div class="ring-value">90g</div>
+                        <div class="ring-target">/ 150g</div>
+                    </div>
+                </div>
+                <div class="macro-label">Carbs</div>
+            </div>
+
+            <div class="macro-card fat">
+                <div class="ring-container">
+                    <svg class="ring-svg" viewBox="0 0 120 120">
+                        <circle class="ring-bg" cx="60" cy="60" r="54"/>
+                        <circle class="ring-fill" cx="60" cy="60" r="54" style="--target-offset: 186.6;"/>
+                    </svg>
+                    <div class="ring-content">
+                        <div class="ring-value">32g</div>
+                        <div class="ring-target">/ 70g</div>
+                    </div>
+                </div>
+                <div class="macro-label">Fat</div>
+            </div>
+        </div>
+
+        <!-- Linear Progress Bars -->
+        <div class="progress-demo">
+            <h3 style="margin-bottom: 24px; font-weight: 600;">Daily Progress</h3>
+            <div class="progress-item">
+                <div class="progress-label">
+                    <span>Calories</span>
+                    <span>75%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill calories"></div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-label">
+                    <span>Protein</span>
+                    <span>90%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill protein"></div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-label">
+                    <span>Carbs</span>
+                    <span>60%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill carbs"></div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-label">
+                    <span>Fat</span>
+                    <span>45%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill fat"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meal Cards with Stagger Animation -->
+        <div class="meals-container">
+            <div class="meal-card">
+                <div class="meal-header">
+                    <span class="meal-title">Breakfast</span>
+                    <button class="add-btn">+</button>
+                </div>
+                <div class="meal-content">
+                    <p style="color: var(--text-tertiary); font-size: 14px;">Animates in with stagger delay</p>
+                </div>
+            </div>
+            <div class="meal-card">
+                <div class="meal-header">
+                    <span class="meal-title">Lunch</span>
+                    <button class="add-btn">+</button>
+                </div>
+                <div class="meal-content"></div>
+            </div>
+            <div class="meal-card">
+                <div class="meal-header">
+                    <span class="meal-title">Dinner</span>
+                    <button class="add-btn">+</button>
+                </div>
+                <div class="meal-content"></div>
+            </div>
+            <div class="meal-card">
+                <div class="meal-header">
+                    <span class="meal-title">Snacks</span>
+                    <button class="add-btn">+</button>
+                </div>
+                <div class="meal-content"></div>
+            </div>
+        </div>
+
+        <!-- Animated Hydration -->
+        <div class="hydration-section">
+            <h3 style="font-weight: 600; margin-bottom: 8px;">Hydration</h3>
+            <p style="color: var(--text-tertiary); font-size: 14px; margin-bottom: 20px;">Click drops to toggle - animated fill</p>
+            <div class="water-drops">
+                <div class="water-drop filled" onclick="toggleDrop(this)"><div class="water-fill"></div></div>
+                <div class="water-drop filled" onclick="toggleDrop(this)"><div class="water-fill"></div></div>
+                <div class="water-drop filled" onclick="toggleDrop(this)"><div class="water-fill"></div></div>
+                <div class="water-drop filled" onclick="toggleDrop(this)"><div class="water-fill"></div></div>
+                <div class="water-drop" onclick="toggleDrop(this)"></div>
+            </div>
+            <p style="font-size: 24px; font-weight: 700;">4 <span style="font-size: 16px; font-weight: 500; color: var(--text-tertiary);">/ 8 cups</span></p>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            html.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
+        }
+
+        function toggleDrop(el) {
+            el.classList.toggle('filled');
+            if (el.classList.contains('filled')) {
+                el.innerHTML = '<div class="water-fill"></div>';
+            } else {
+                el.innerHTML = '';
+            }
+        }
+    </script>
+</body>
+</html>

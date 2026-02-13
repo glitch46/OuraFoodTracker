@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Tracker - Design Mockup V2 (Apple Health Style)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #1c1c1e;
+            --bg-tertiary: #2c2c2e;
+            --text-primary: #ffffff;
+            --text-secondary: #8e8e93;
+            --accent-move: #fa114f;
+            --accent-exercise: #92e027;
+            --accent-stand: #00d9ff;
+            --accent-calories: #ff9500;
+            --accent-protein: #007aff;
+            --accent-carbs: #34c759;
+            --accent-fat: #ffcc00;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f2f2f7;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e5e5ea;
+            --text-primary: #000000;
+            --text-secondary: #6c6c70;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* iOS Style Toggle */
+        .ios-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 51px;
+            height: 31px;
+            background: var(--bg-tertiary);
+            border-radius: 31px;
+            cursor: pointer;
+            padding: 2px;
+            transition: background 0.3s;
+            z-index: 1000;
+        }
+
+        .ios-toggle.active {
+            background: #34c759;
+        }
+
+        .ios-toggle-knob {
+            width: 27px;
+            height: 27px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transform: translateX(0);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .ios-toggle.active .ios-toggle-knob {
+            transform: translateX(20px);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px 40px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .date {
+            color: var(--text-secondary);
+            font-size: 17px;
+            margin-bottom: 30px;
+        }
+
+        /* Summary Cards - Apple Style */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            min-height: 160px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .summary-card:hover {
+            transform: scale(1.02);
+        }
+
+        .summary-card.large {
+            grid-column: span 2;
+            min-height: 200px;
+        }
+
+        .card-label {
+            font-size: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-value {
+            font-size: 42px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .card-subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Animated Ring - Apple Watch Style */
+        .ring-container {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 100px;
+        }
+
+        .ring-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .ring-bg {
+            fill: none;
+            stroke: var(--bg-tertiary);
+            stroke-width: 12;
+        }
+
+        .ring-fill {
+            fill: none;
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            animation: appleRingFill 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes appleRingFill {
+            to { stroke-dashoffset: var(--fill-target); }
+        }
+
+        /* Triple Ring Stack */
+        .triple-ring {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 140px;
+            height: 140px;
+        }
+
+        .triple-ring svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .ring-outer { transform: rotate(-90deg); }
+        .ring-middle { transform: rotate(-85deg); }
+        .ring-inner { transform: rotate(-80deg); }
+
+        .ring-outer .ring-fill { stroke: var(--accent-move); --fill-target: 70; animation-delay: 0s; }
+        .ring-middle .ring-fill { stroke: var(--accent-exercise); --fill-target: 85; animation-delay: 0.2s; }
+        .ring-inner .ring-fill { stroke: var(--accent-stand); --fill-target: 60; animation-delay: 0.4s; }
+
+        /* Wave Animation Background */
+        .wave-bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(180deg, transparent, rgba(255,255,255,0.03));
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='0.05' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E") repeat-x;
+            background-size: 50% 100%;
+            animation: waveMotion 8s linear infinite;
+        }
+
+        @keyframes waveMotion {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Mini Charts */
+        .chart-bar {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 50px;
+        }
+
+        .chart-bar-item {
+            width: 8px;
+            background: currentColor;
+            border-radius: 4px;
+            opacity: 0.3;
+            animation: barGrow 0.8s ease forwards;
+            transform-origin: bottom;
+        }
+
+        @keyframes barGrow {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
+        }
+
+        /* List Items */
+        .list-section {
+            margin-top: 20px;
+        }
+
+        .list-header {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .list-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--bg-tertiary);
+            transition: background 0.2s;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideInRight 0.5s ease forwards;
+        }
+
+        .list-item:nth-child(1) { animation-delay: 0.1s; }
+        .list-item:nth-child(2) { animation-delay: 0.2s; }
+        .list-item:nth-child(3) { animation-delay: 0.3s; }
+        .list-item:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .item-content {
+            flex: 1;
+        }
+
+        .item-title {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .item-subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .item-value {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* Pulsing Dot */
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-exercise);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .pulse-dot::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border: 2px solid var(--accent-exercise);
+            border-radius: 50%;
+            animation: pulseRing 2s ease-out infinite;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        /* Float Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="ios-toggle" onclick="toggleTheme()">
+        <div class="ios-toggle-knob"></div>
+    </div>
+
+    <div class="container">
+        <h1>Summary</h1>
+        <p class="date">Friday, February 6</p>
+
+        <!-- Activity Rings Card -->
+        <div class="summary-card large" style="background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);">
+            <div class="card-label" style="color: var(--text-secondary);">
+                <span>DAILY ACTIVITY</span>
+            </div>
+            <div class="card-value">847</div>
+            <div class="card-subtitle">active kcal</div>
+            
+            <div class="triple-ring">
+                <svg class="ring-svg ring-outer" viewBox="0 0 140 140">
+                    <circle class="ring-bg" cx="70" cy="70" r="60"/>
+                    <circle class="ring-fill" cx="70" cy="70" r="60"/>
+                </svg>
+                <svg class="ring-svg ring-middle" viewBox="0 0 140 140" style="transform: scale(0.85) rotate(-85deg); transform-origin: center;">
+                    <circle class="ring-bg" cx="70" cy="70" r="60"/>
+                    <circle class="ring-fill" cx="70" cy="70" r="60"/>
+                </svg>
+                <svg class="ring-svg ring-inner" viewBox="0 0 140 140" style="transform: scale(0.7) rotate(-80deg); transform-origin: center;">
+                    <circle class="ring-bg" cx="70" cy="70" r="60"/>
+                    <circle class="ring-fill" cx="70" cy="70" r="60"/>
+                </svg>
+            </div>
+            
+            <div class="wave-bg">
+                <div class="wave"></div>
+            </div>
+        </div>
+
+        <!-- Nutrition Cards -->
+        <div class="summary-grid">
+            <div class="summary-card" style="color: var(--accent-calories);">
+                <div class="card-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    Calories
+                </div>
+                <div class="card-value" style="color: var(--text-primary);">1,247</div>
+                <div class="card-subtitle">of 1,600 kcal</div>
+                <div class="ring-container" style="width: 70px; height: 70px;">
+                    <svg class="ring-svg" viewBox="0 0 100 100">
+                        <circle class="ring-bg" cx="50" cy="50" r="42" style="stroke-width: 8;"/>
+                        <circle class="ring-fill" cx="50" cy="50" r="42" style="stroke: var(--accent-calories); --fill-target: 70; stroke-width: 8;"/>
+                    </svg>
+                </div>
+                <div class="chart-bar" style="color: var(--accent-calories);">
+                    <div class="chart-bar-item" style="height: 60%; animation-delay: 0.1s;"></div>
+                    <div class="chart-bar-item" style="height: 80%; animation-delay: 0.2s;"></div>
+                    <div class="chart-bar-item" style="height: 40%; animation-delay: 0.3s;"></div>
+                    <div class="chart-bar-item" style="height: 90%; animation-delay: 0.4s;"></div>
+                    <div class="chart-bar-item" style="height: 70%; animation-delay: 0.5s;"></div>
+                </div>
+            </div>
+
+            <div class="summary-card" style="color: var(--accent-protein);">
+                <div class="card-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+                    Protein
+                </div>
+                <div class="card-value" style="color: var(--text-primary);">127g</div>
+                <div class="card-subtitle">of 150g goal</div>
+                <div class="ring-container" style="width: 70px; height: 70px;">
+                    <svg class="ring-svg" viewBox="0 0 100 100">
+                        <circle class="ring-bg" cx="50" cy="50" r="42" style="stroke-width: 8;"/>
+                        <circle class="ring-fill" cx="50" cy="50" r="42" style="stroke: var(--accent-protein); --fill-target: 47; stroke-width: 8;"/>
+                    </svg>
+                </div>
+                <div class="floating pulse-dot" style="position: absolute; bottom: 20px; right: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- Meal List -->
+        <div class="list-section">
+            <div class="list-header">Meals</div>
+            <div class="list-card">
+                <div class="list-item">
+                    <div class="item-icon" style="background: rgba(255, 149, 0, 0.2);">🌅</div>
+                    <div class="item-content">
+                        <div class="item-title">Breakfast</div>
+                        <div class="item-subtitle">Scrambled eggs, toast</div>
+                    </div>
+                    <div class="item-value">450 kcal</div>
+                </div>
+                <div class="list-item">
+                    <div class="item-icon" style="background: rgba(0, 122, 255, 0.2);">☀️</div>
+                    <div class="item-content">
+                        <div class="item-title">Lunch</div>
+                        <div class="item-subtitle">Grilled chicken salad</div>
+                    </div>
+                    <div class="item-value">520 kcal</div>
+                </div>
+                <div class="list-item">
+                    <div class="item-icon" style="background: rgba(52, 199, 89, 0.2);">🌙</div>
+                    <div class="item-content">
+                        <div class="item-title">Dinner</div>
+                        <div class="item-subtitle">Not logged</div>
+                    </div>
+                    <div class="item-value">--</div>
+                </div>
+                <div class="list-item">
+                    <div class="item-icon" style="background: rgba(255, 204, 0, 0.2);">🍎</div>
+                    <div class="item-content">
+                        <div class="item-title">Snacks</div>
+                        <div class="item-subtitle">Protein shake</div>
+                    </div>
+                    <div class="item-value">277 kcal</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            document.documentElement.toggleAttribute('data-theme', 'light');
+            document.querySelector('.ios-toggle').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helix Food Tracker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        body {
+            font-family: 'Orbitron', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 { color: #e94560; }
+        .day-header {
+            background: #16213e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .meal-section {
+            background: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .meal-title {
+            color: #e94560;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #1a1a2e;
+        }
+        th {
+            background: #16213e;
+            color: #e94560;
+        }
+        .totals {
+            background: #16213e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .progress-bar {
+            background: #0f3460;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        .progress-fill {
+            background: #e94560;
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .macro-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧬 Helix Food Tracker</h1>
+    
+    <div class="day-header">
+        <h2 id="current-date"></h2>
+    </div>
+
+    <div id="meals-container"></div>
+
+    <div class="totals">
+        <h3>Daily Progress</h3>
+        <div class="macro-row">
+            <span>Calories: <span id="cal-current">0</span> / <span id="cal-target">1600</span></span>
+            <span id="cal-percent">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="cal-bar" style="width: 0%"></div></div>
+        
+        <div class="macro-row">
+            <span>Protein: <span id="prot-current">0</span>g / <span id="prot-target">150</span>g</span>
+            <span id="prot-percent">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="prot-bar" style="width: 0%"></div></div>
+        
+        <div class="macro-row">
+            <span>Carbs: <span id="carb-current">0</span>g / <span id="carb-target">150</span>g</span>
+            <span id="carb-percent">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="carb-bar" style="width: 0%"></div></div>
+        
+        <div class="macro-row">
+            <span>Fat: <span id="fat-current">0</span>g / <span id="fat-target">70</span>g</span>
+            <span id="fat-percent">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="fat-bar" style="width: 0%"></div></div>
+    </div>
+
+    <script>
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Target macros
+        const targets = { cal: 1600, protein: 150, carbs: 150, fat: 70 };
+
+        function seedTodaySnacks() {
+            const snackData = [
+                {name: "Small slice pepperoni pizza", cal: 250, protein: 12, carbs: 28, fat: 10},
+                {name: "Lentil samosa", cal: 150, protein: 6, carbs: 20, fat: 6},
+                {name: "8 air fried chicken wings", cal: 400, protein: 40, carbs: 2, fat: 26},
+                {name: "Pearl Snap beer (12oz)", cal: 150, protein: 2, carbs: 12, fat: 0},
+                {name: "6 tortilla chips with queso", cal: 200, protein: 6, carbs: 18, fat: 12},
+                {name: "1.5 bowls Magic Spoon cereal + 1/2 cup 2% milk", cal: 270, protein: 25, carbs: 29, fat: 13},
+                {name: "Bowl of Premier Protein cereal", cal: 180, protein: 20, carbs: 15, fat: 5},
+                {name: "Bowl of Magic Spoon cereal + half cup of skim milk", cal:210 ,protein :17 ,carbs :20 ,fat :9}
+            ];
+            if (!localStorage.getItem(`nutrition-${today}-snacks`)) {
+                localStorage.setItem(`nutrition-${today}-snacks`, JSON.stringify(snackData));
+            }
+        }
+
+        function seedTodayDinner() {
+            const dinnerData = [
+                {name: "Spaghetti marinara with Protein+ noodles and 90/10 ground beef", cal: 550, protein: 45, carbs: 48, fat: 22},
+                {name: "Barilla protein pasta with red sauce and 90/10 ground beef", cal: 450, protein: 42, carbs: 51, fat: 14}
+            ];
+            if (!localStorage.getItem(`nutrition-${today}-dinner`)) {
+                localStorage.setItem(`nutrition-${today}-dinner`, JSON.stringify(dinnerData));
+            }
+        }
+
+        function getMealsForToday() {
+            const meals = {};
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                if (key.startsWith(`nutrition-${today}`)) {
+                    const mealName = key.split('-').pop();
+                    meals[mealName] = JSON.parse(localStorage.getItem(key));
+                }
+            });
+            return meals;
+        }
+
+        function renderMeals() {
+            const container = document.getElementById('meals-container');
+            const meals = getMealsForToday();
+            
+            let totalCal = 0, totalProt = 0, totalCarb = 0, totalFat = 0;
+            
+            for (const [mealName, items] of Object.entries(meals)) {
+                const mealDiv = document.createElement('div');
+                mealDiv.className = 'meal-section';
+                
+                let mealCal = 0, mealProt = 0, mealCarb = 0, mealFat = 0;
+                
+                let tableHTML = `
+                    <div class="meal-title">${mealName.charAt(0).toUpperCase() + mealName.slice(1)}</div>
+                    <table>
+                        <tr><th>Food</th><th>Cal</th><th>Protein</th><th>Carbs</th><th>Fat</th></tr>
+                `;
+                
+                items.forEach(item => {
+                    tableHTML += `<tr><td>${item.name}</td><td>${item.cal}</td><td>${item.protein}g</td><td>${item.carbs}g</td><td>${item.fat}g</td></tr>`;
+                    mealCal += item.cal;
+                    mealProt += item.protein;
+                    mealCarb += item.carbs;
+                    mealFat += item.fat;
+                });
+                
+                tableHTML += `<tr style="font-weight: bold; background: #16213e;"><td>Meal Total</td><td>${mealCal}</td><td>${mealProt}g</td><td>${mealCarb}g</td><td>${mealFat}g</td></tr>`;
+                tableHTML += '</table>';
+                mealDiv.innerHTML = tableHTML;
+                container.appendChild(mealDiv);
+                
+                totalCal += mealCal;
+                totalProt += mealProt;
+                totalCarb += mealCarb;
+                totalFat += mealFat;
+            }
+            
+            // Update totals display
+            document.getElementById('cal-current').textContent = totalCal;
+            document.getElementById('prot-current').textContent = totalProt;
+            document.getElementById('carb-current').textContent = totalCarb;
+            document.getElementById('fat-current').textContent = totalFat;
+            
+            document.getElementById('cal-bar').style.width = Math.min((totalCal / targets.cal) * 100, 100) + '%';
+            document.getElementById('prot-bar').style.width = Math.min((totalProt / targets.protein) * 100, 100) + '%';
+            document.getElementById('carb-bar').style.width = Math.min((totalCarb / targets.carbs) * 100, 100) + '%';
+            document.getElementById('fat-bar').style.width = Math.min((totalFat / targets.fat) * 100, 100) + '%';
+            
+            document.getElementById('cal-percent').textContent = Math.round((totalCal / targets.cal) * 100) + '%';
+            document.getElementById('prot-percent').textContent = Math.round((totalProt / targets.protein) * 100) + '%';
+            document.getElementById('carb-percent').textContent = Math.round((totalCarb / targets.carbs) * 100) + '%';
+            document.getElementById('fat-percent').textContent = Math.round((totalFat / targets.fat) * 100) + '%';
+        }
+
+        // Initialize
+        seedTodaySnacks();
+        seedTodayDinner();
+        renderMeals();
+    </script>
+</body>
+</html>

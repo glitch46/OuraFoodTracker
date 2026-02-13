@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Tracker - Design Mockup V3 (Modern SaaS)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f0f11;
+            --surface: #18181b;
+            --surface-hover: #27272a;
+            --border: #27272a;
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.3);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+
+        [data-theme="light"] {
+            --bg: #fafafa;
+            --surface: #ffffff;
+            --surface-hover: #f4f4f5;
+            --border: #e4e4e7;
+            --text: #18181b;
+            --text-muted: #71717a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        /* Animated Background Gradient */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+            animation: floatOrb 20s ease infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: var(--primary);
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--success);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: var(--info);
+            top: 50%;
+            left: 50%;
+            margin-left: -200px;
+            margin-top: -200px;
+            animation-delay: -10s;
+        }
+
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(0, 50px) scale(0.95); }
+            75% { transform: translate(-50px, -25px) scale(1.05); }
+        }
+
+        /* Theme Toggle - Neumorphic */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toggle-btn {
+            width: 80px;
+            height: 40px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .toggle-option {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+
+        .toggle-option.active {
+            color: var(--primary);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), #a78bfa);
+            border-radius: 50%;
+            left: 4px;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        [data-theme="light"] .toggle-slider {
+            transform: translateX(40px);
+        }
+
+        .toggle-option svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px 40px;
+        }
+
+        /* Header with Live Indicator */
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: livePulse 2s ease infinite;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="light"] .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Stats Grid with Hover Effects */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--card-color), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--card-color);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card.calories { --card-color: var(--danger); }
+        .stat-card.protein { --card-color: var(--info); }
+        .stat-card.carbs { --card-color: var(--success); }
+        .stat-card.fat { --card-color: var(--warning); }
+
+        /* Animated Bubble Graph */
+        .bubble-container {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .bubble {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(var(--card-color) var(--fill-percent), transparent 0);
+            position: relative;
+            animation: rotateIn 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes rotateIn {
+            0% { transform: rotate(-180deg) scale(0.8); opacity: 0; }
+            100% { transform: rotate(0) scale(1); opacity: 1; }
+        }
+
+        .bubble::before {
+            content: '';
+            position: absolute;
+            inset: 12px;
+            background: var(--surface);
+            border-radius: 50%;
+        }
+
+        .bubble-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bubble-value {
+            font-size: 28px;
+            font-weight: 700;
+            animation: countUp 1.5s ease forwards;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bubble-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-info {
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .stat-progress {
+            font-size: 13px;
+            color: var(--card-color);
+            font-weight: 500;
+        }
+
+        /* Progress Bars with Liquid Effect */
+        .liquid-progress {
+            margin: 40px 0;
+        }
+
+        .liquid-item {
+            margin-bottom: 24px;
+        }
+
+        .liquid-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .liquid-label {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .liquid-value {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .liquid-bar {
+            height: 12px;
+            background: var(--surface);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .liquid-fill {
+            height: 100%;
+            border-radius: 6px;
+            position: relative;
+            width: 0;
+            animation: liquidFill 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .liquid-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes liquidFill {
+            to { width: var(--target-width); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .liquid-fill.calories { background: linear-gradient(90deg, #ef4444, #f97316); --target-width: 75%; }
+        .liquid-fill.protein { background: linear-gradient(90deg, #3b82f6, #8b5cf6); --target-width: 90%; }
+        .liquid-fill.carbs { background: linear-gradient(90deg, #22c55e, #10b981); --target-width: 60%; }
+        .liquid-fill.fat { background: linear-gradient(90deg, #eab308, #f59e0b); --target-width: 45%; }
+
+        /* Interactive Meal Grid */
+        .meals-section {
+            margin-top: 40px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .meals-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .meal-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.6s ease forwards;
+        }
+
+        .meal-item:nth-child(1) { animation-delay: 0.1s; }
+        .meal-item:nth-child(2) { animation-delay: 0.2s; }
+        .meal-item:nth-child(3) { animation-delay: 0.3s; }
+        .meal-item:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .meal-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.1);
+        }
+
+        .meal-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .meal-item:hover::after {
+            opacity: 0.05;
+        }
+
+        .meal-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--surface-hover);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .meal-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .meal-calories {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .add-icon {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 32px;
+            height: 32px;
+            background: var(--surface-hover);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .meal-item:hover .add-icon {
+            background: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .meals-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-gradient">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <div class="toggle-btn" onclick="toggleTheme()">
+            <div class="toggle-slider"></div>
+            <div class="toggle-option active" data-mode="dark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </div>
+            <div class="toggle-option" data-mode="light">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header with Live Indicator -->
+        <div class="header">
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span>Live Tracking</span>
+            </div>
+            <h1>Nutrition Dashboard</h1>
+            <p class="subtitle">Track your daily macros and reach your goals</p>
+        </div>
+
+        <!-- Stats with Animated Bubble Graphs -->
+        <div class="stats-grid">
+            <div class="stat-card calories">
+                <div class="bubble-container">
+                    <div class="bubble" style="--fill-percent: 75%;">
+                        <div class="bubble-content">
+                            <div class="bubble-value">75%</div>
+                            <div class="bubble-label">1,200</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-title">Calories</div>
+                    <div class="stat-progress">1,200 / 1,600 kcal</div>
+                </div>
+            </div>
+
+            <div class="stat-card protein">
+                <div class="bubble-container">
+                    <div class="bubble" style="--fill-percent: 90%;">
+                        <div class="bubble-content">
+                            <div class="bubble-value">90%</div>
+                            <div class="bubble-label">135g</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-title">Protein</div>
+                    <div class="stat-progress">135 / 150g</div>
+                </div>
+            </div>
+
+            <div class="stat-card carbs">
+                <div class="bubble-container">
+                    <div class="bubble" style="--fill-percent: 60%;">
+                        <div class="bubble-content">
+                            <div class="bubble-value">60%</div>
+                            <div class="bubble-label">90g</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-title">Carbs</div>
+                    <div class="stat-progress">90 / 150g</div>
+                </div>
+            </div>
+
+            <div class="stat-card fat">
+                <div class="bubble-container">
+                    <div class="bubble" style="--fill-percent: 45%;">
+                        <div class="bubble-content">
+                            <div class="bubble-value">45%</div>
+                            <div class="bubble-label">32g</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-title">Fat</div>
+                    <div class="stat-progress">32 / 70g</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liquid Progress Bars -->
+        <div class="glass-card liquid-progress">
+            <h3 style="margin-bottom: 24px; font-size: 18px; font-weight: 600;">Today's Progress</h3>
+            
+            <div class="liquid-item">
+                <div class="liquid-header">
+                    <span class="liquid-label">Calories Burned</span>
+                    <span class="liquid-value">75%</span>
+                </div>
+                <div class="liquid-bar">
+                    <div class="liquid-fill calories"></div>
+                </div>
+            </div>
+
+            <div class="liquid-item">
+                <div class="liquid-header">
+                    <span class="liquid-label">Protein Goal</span>
+                    <span class="liquid-value">90%</span>
+                </div>
+                <div class="liquid-bar">
+                    <div class="liquid-fill protein"></div>
+                </div>
+            </div>
+
+            <div class="liquid-item">
+                <div class="liquid-header">
+                    <span class="liquid-label">Carb Limit</span>
+                    <span class="liquid-value">60%</span>
+                </div>
+                <div class="liquid-bar">
+                    <div class="liquid-fill carbs"></div>
+                </div>
+            </div>
+
+            <div class="liquid-item">
+                <div class="liquid-header">
+                    <span class="liquid-label">Fat Intake</span>
+                    <span class="liquid-value">45%</span>
+                </div>
+                <div class="liquid-bar">
+                    <div class="liquid-fill fat"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Meals -->
+        <div class="meals-section">
+            <h2 class="section-title">
+                <span>Meals</span>
+                <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">Tap to add food</span>
+            </h2>
+            <div class="meals-grid">
+                <div class="meal-item">
+                    <div class="meal-icon">🌅</div>
+                    <div class="meal-name">Breakfast</div>
+                    <div class="meal-calories">450 kcal logged</div>
+                    <div class="add-icon">+</div>
+                </div>
+                <div class="meal-item">
+                    <div class="meal-icon">☀️</div>
+                    <div class="meal-name">Lunch</div>
+                    <div class="meal-calories">520 kcal logged</div>
+                    <div class="add-icon">+</div>
+                </div>
+                <div class="meal-item">
+                    <div class="meal-icon">🌙</div>
+                    <div class="meal-name">Dinner</div>
+                    <div class="meal-calories">No items yet</div>
+                    <div class="add-icon">+</div>
+                </div>
+                <div class="meal-item">
+                    <div class="meal-icon">🍎</div>
+                    <div class="meal-name">Snacks</div>
+                    <div class="meal-calories">277 kcal logged</div>
+                    <div class="add-icon">+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isLight = html.hasAttribute('data-theme');
+            
+            if (isLight) {
+                html.removeAttribute('data-theme');
+            } else {
+                html.setAttribute('data-theme', 'light');
+            }
+            
+            document.querySelectorAll('.toggle-option').forEach(opt => {
+                opt.classList.toggle('active');
+            });
+        }
+
+        // Add hover tilt effect to stat cards
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>
